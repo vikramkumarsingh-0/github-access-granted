@@ -44,7 +44,12 @@ export function TimelineFeed({
           </li>
         )}
         {events.map((event, index) => {
-          const style = PHASE_STYLE[event.phase];
+          // A live backend can send a phase this UI doesn't know yet — show it plainly
+          // instead of crashing the feed.
+          const style = PHASE_STYLE[event.phase] ?? {
+            label: String(event.phase ?? "step").toUpperCase().slice(0, 8),
+            className: "text-muted-foreground border-border bg-secondary/60",
+          };
           return (
             <li key={`${event.step}-${event.phase}-${index}`}>
               <button
