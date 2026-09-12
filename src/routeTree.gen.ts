@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AgentCodeRouteImport } from './routes/agent-code'
+import { Route as ApiAgentStreamRouteImport } from './routes/api/agent-stream'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentCodeRoute = AgentCodeRouteImport.update({
+  id: '/agent-code',
+  path: '/agent-code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentStreamRoute = ApiAgentStreamRouteImport.update({
+  id: '/api/agent-stream',
+  path: '/api/agent-stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/agent-code': typeof AgentCodeRoute
+  '/api/agent-stream': typeof ApiAgentStreamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agent-code': typeof AgentCodeRoute
+  '/api/agent-stream': typeof ApiAgentStreamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/agent-code': typeof AgentCodeRoute
+  '/api/agent-stream': typeof ApiAgentStreamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/agent-code' | '/api/agent-stream'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/agent-code' | '/api/agent-stream'
+  id: '__root__' | '/' | '/agent-code' | '/api/agent-stream'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AgentCodeRoute: typeof AgentCodeRoute
+  ApiAgentStreamRoute: typeof ApiAgentStreamRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agent-code': {
+      id: '/agent-code'
+      path: '/agent-code'
+      fullPath: '/agent-code'
+      preLoaderRoute: typeof AgentCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent-stream': {
+      id: '/api/agent-stream'
+      path: '/api/agent-stream'
+      fullPath: '/api/agent-stream'
+      preLoaderRoute: typeof ApiAgentStreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AgentCodeRoute: AgentCodeRoute,
+  ApiAgentStreamRoute: ApiAgentStreamRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
