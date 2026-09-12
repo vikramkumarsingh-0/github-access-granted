@@ -62,11 +62,18 @@ export const Route = createFileRoute("/api/agent-stream")({
           // Tag proxied events as "live" so the UI can distinguish them
           // from sandbox runs.
           const encoder = new TextEncoder();
+          const decoder = new TextDecoder();
+          let buffer = "";
           const tagged = response.body.pipeThrough(
             new TransformStream<Uint8Array, Uint8Array>({
               transform(chunk, controller) {
-                const text = new TextDecoder().decode(chunk);
-                const out = text
+                // Chunks can split mid-line; only process complete lines.
+                buffer += decoder.decode(chunk, { stream: true });
+                const lastNewline = buffer.lastIndexOf("\n");
+                if (lastNewline === -1) return;
+                const complete = buffer.slice(0, lastNewline);
+                buffer = buffer.slice(lastNewline + 1);
+                const out = complete
                   .split("\n")
                   .map((line) => {
                     if (!line.startsWith("data: ")) return line;
