@@ -54,6 +54,9 @@ function AdminPanel() {
   const [customFlows, setCustomFlows] = useCustomFlows();
   const { history, clear } = useRunHistory();
   const [status, setStatus] = useState<AgentStatus | null>(null);
+  const [builderName, setBuilderName] = useState("");
+  const [builderUrl, setBuilderUrl] = useState("");
+  const [builderSteps, setBuilderSteps] = useState<string[]>([]);
 
   useEffect(() => {
     let cancelled = false;
