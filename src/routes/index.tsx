@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { FlowPicker } from "@/components/vision/FlowPicker";
 import { TimelineFeed } from "@/components/vision/TimelineFeed";
 import { VisualInspector } from "@/components/vision/VisualInspector";
 import { Button } from "@/components/ui/button";
@@ -15,11 +16,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BROWSERS, REASONERS, type RunConfig, type RunRecord, type StepEvent } from "@/lib/vision-types";
+import { resolveFlows, useCustomFlows, useRunHistory, useSettings } from "@/lib/admin-store";
+import { compileFlow, defaultValues, type FlowDefinition } from "@/lib/flows";
+import { BROWSERS, REASONERS, type RunConfig, type StepEvent } from "@/lib/vision-types";
 
 const TITLE = "VisionBaseLLM — Visual Browser Automation Command Center";
 const DESCRIPTION =
-  "Run, watch and audit a vision-driven browser agent: live bounding boxes, step-by-step reasoning, and a full execution timeline for every automated task.";
+  "Run, watch and audit a vision-driven browser agent: ready-made flows for sign-in, forms and clicks, live bounding boxes and a full execution timeline.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -35,28 +38,18 @@ export const Route = createFileRoute("/")({
   component: CommandCenter,
 });
 
-const PRESETS: { label: string; url: string; task: string }[] = [
-  {
-    label: "Search a catalogue",
-    url: "https://books.toscrape.com",
-    task: "Search for travel books, then open the first result",
-  },
-  {
-    label: "Sign in flow",
+function CommandCenter() {
+  const [settings] = useSettings();
+  const [customFlows] = useCustomFlows();
+  const { history, append } = useRunHistory();
+
+  const flows = useMemo(() => resolveFlows(customFlows, settings), [customFlows, settings]);
+
+  const [flowId, setFlowId] = useState<string | null>("login");
+  const [flowValues, setFlowValues] = useState<Record<string, string>>({});
+  const [config, setConfig] = useState<RunConfig>({
     url: "https://practice.expandtesting.com/login",
     task: "Log in with the demo account and confirm the session banner",
-  },
-  {
-    label: "Add to cart",
-    url: "https://www.saucedemo.com/inventory.html",
-    task: "Find the backpack, add it to the cart and verify the cart badge",
-  },
-];
-
-function CommandCenter() {
-  const [config, setConfig] = useState<RunConfig>({
-    url: PRESETS[0]!.url,
-    task: PRESETS[0]!.task,
     browser: "chromium",
     reasoner: "gateway-astra",
     headless: true,
@@ -67,13 +60,45 @@ function CommandCenter() {
   const [running, setRunning] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [history, setHistory] = useState<RunRecord[]>([]);
   const [showBoxes, setShowBoxes] = useState(true);
   const [followLive, setFollowLive] = useState(true);
   const abortRef = useRef<AbortController | null>(null);
   const startedAtRef = useRef(0);
 
+  // Adopt admin defaults once they are read from storage.
+  useEffect(() => {
+    setConfig((prev) => ({
+      ...prev,
+      browser: settings.defaultBrowser,
+      reasoner: settings.defaultReasoner,
+      headless: settings.headless,
+      maxSteps: settings.maxSteps,
+    }));
+    setShowBoxes(settings.showBoxes);
+  }, [settings]);
+
+  // Keep the task text in sync with the selected flow.
+  useEffect(() => {
+    const flow = flows.find((item) => item.id === flowId);
+    if (!flow) return;
+    const values = Object.keys(flowValues).length ? flowValues : defaultValues(flow);
+    const compiled = compileFlow(flow, values);
+    setConfig((prev) => ({ ...prev, task: compiled.task, maxSteps: compiled.maxSteps }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flowId, flowValues]);
+
   useEffect(() => () => abortRef.current?.abort(), []);
+
+  const selectFlow = useCallback((flow: FlowDefinition | null) => {
+    if (!flow) {
+      setFlowId(null);
+      setFlowValues({});
+      return;
+    }
+    setFlowId(flow.id);
+    setFlowValues(defaultValues(flow));
+    setConfig((prev) => ({ ...prev, url: flow.defaultUrl }));
+  }, []);
 
   const activeEvent = useMemo(() => {
     if (events.length === 0) return null;
@@ -110,6 +135,8 @@ function CommandCenter() {
       browser: config.browser,
       reasoner: config.reasoner,
       maxSteps: String(config.maxSteps),
+      ...(flowId ? { flow: flowId } : {}),
+      ...(settings.allowLiveRuns ? {} : { sandbox: "1" }),
     });
 
     const collected: StepEvent[] = [];
@@ -144,6 +171,9 @@ function CommandCenter() {
             const event = JSON.parse(raw) as StepEvent;
             collected.push(event);
             setEvents((prev) => [...prev, event]);
+            if (settings.stopOnFirstError && event.phase === "error") {
+              controller.abort();
+            }
           } catch {
             // ignore malformed frames
           }
@@ -158,23 +188,21 @@ function CommandCenter() {
       setRunning(false);
       if (collected.length > 0) {
         const last = collected[collected.length - 1]!;
-        setHistory((prev) =>
-          [
-            {
-              runId: last.run_id,
-              startedAt: startedAtRef.current,
-              config,
-              events: collected,
-              outcome: last.phase === "error" ? ("failure" as const) : ("success" as const),
-              durationMs: Date.now() - startedAtRef.current,
-              source: last.source ?? "sandbox",
-            },
-            ...prev,
-          ].slice(0, 8),
+        append(
+          {
+            runId: last.run_id,
+            startedAt: startedAtRef.current,
+            config,
+            events: collected,
+            outcome: last.phase === "error" ? "failure" : "success",
+            durationMs: Date.now() - startedAtRef.current,
+            source: last.source ?? "sandbox",
+          },
+          settings.historyLimit,
         );
       }
     }
-  }, [config]);
+  }, [config, flowId, settings, append]);
 
   const stats = useMemo(() => {
     const actions = events.filter((event) => event.phase === "act").length;
@@ -201,25 +229,36 @@ function CommandCenter() {
             worked — and you see every one of those moments as it happens.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full border border-border px-3 py-1 font-mono text-[11px] text-muted-foreground">
             mode: <span className="text-accent">{mode}</span>
           </span>
-          <Link
-            to="/agent-code"
-            className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-secondary"
-          >
+          <Link to="/mimic" className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-secondary">
+            Mimic sandbox
+          </Link>
+          <Link to="/admin" className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-secondary">
+            Admin
+          </Link>
+          <Link to="/agent-code" className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-secondary">
             Agent source
           </Link>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[340px_minmax(0,1fr)_380px]">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[360px_minmax(0,1fr)_380px]">
         {/* config */}
         <section className="panel flex flex-col gap-4 p-4">
           <h2 className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            Task configuration
+            Automation flow
           </h2>
+
+          <FlowPicker
+            flows={flows}
+            activeId={flowId}
+            values={flowValues}
+            onSelect={selectFlow}
+            onValueChange={(key, value) => setFlowValues((prev) => ({ ...prev, [key]: value }))}
+          />
 
           <div className="space-y-1.5">
             <Label htmlFor="target-url">Target address</Label>
@@ -233,7 +272,7 @@ function CommandCenter() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="goal">What should the agent do?</Label>
+            <Label htmlFor="goal">Instructions sent to the agent</Label>
             <Textarea
               id="goal"
               rows={4}
@@ -318,25 +357,6 @@ function CommandCenter() {
               {error}
             </p>
           )}
-
-          <div className="space-y-2">
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-              Presets
-            </p>
-            {PRESETS.map((preset) => (
-              <button
-                key={preset.label}
-                type="button"
-                onClick={() => setConfig((prev) => ({ ...prev, url: preset.url, task: preset.task }))}
-                className="w-full rounded-md border border-border px-3 py-2 text-left text-xs transition-colors hover:bg-secondary"
-              >
-                <span className="block text-foreground">{preset.label}</span>
-                <span className="block truncate font-mono text-[11px] text-muted-foreground">
-                  {preset.url}
-                </span>
-              </button>
-            ))}
-          </div>
         </section>
 
         {/* inspector + metrics */}
@@ -395,7 +415,7 @@ function CommandCenter() {
               {history.length === 0 && (
                 <li className="text-xs text-muted-foreground">No completed runs yet.</li>
               )}
-              {history.map((record) => (
+              {history.slice(0, 8).map((record) => (
                 <li
                   key={`${record.runId}-${record.startedAt}`}
                   className="rounded-md border border-border px-3 py-2"

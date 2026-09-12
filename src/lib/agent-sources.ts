@@ -39,4 +39,20 @@ export const AGENT_SOURCES: AgentSource[] = [
       "Health, blocking runs, live streaming runs and metrics — the service this dashboard talks to.",
     destination: "api.py",
   },
+  {
+    file: "flows.py",
+    path: "/visionbasellm/flows.py",
+    title: "Flow library",
+    summary:
+      "The ready-made recipes — sign in, fill a form, click a sequence — plus turning a recording into a reusable flow.",
+    destination: "flows.py",
+  },
+  {
+    file: "webapp.py",
+    path: "/visionbasellm/webapp.py",
+    title: "Standalone web app",
+    summary:
+      "One command, one process: its own console, live run feed and admin panel, with no separate frontend to build.",
+    destination: "webapp.py",
+  },
 ];
