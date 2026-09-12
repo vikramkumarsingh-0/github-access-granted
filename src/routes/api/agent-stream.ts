@@ -59,7 +59,32 @@ export const Route = createFileRoute("/api/agent-stream")({
             );
           }
 
-          return new Response(response.body, {
+          // Tag proxied events as "live" so the UI can distinguish them
+          // from sandbox runs.
+          const encoder = new TextEncoder();
+          const tagged = response.body.pipeThrough(
+            new TransformStream<Uint8Array, Uint8Array>({
+              transform(chunk, controller) {
+                const text = new TextDecoder().decode(chunk);
+                const out = text
+                  .split("\n")
+                  .map((line) => {
+                    if (!line.startsWith("data: ")) return line;
+                    try {
+                      const parsed = JSON.parse(line.slice(6));
+                      parsed.source = "live";
+                      return `data: ${JSON.stringify(parsed)}`;
+                    } catch {
+                      return line;
+                    }
+                  })
+                  .join("\n");
+                controller.enqueue(encoder.encode(out));
+              },
+            }),
+          );
+
+          return new Response(tagged, {
             headers: {
               "Content-Type": "text/event-stream",
               "Cache-Control": "no-cache",
