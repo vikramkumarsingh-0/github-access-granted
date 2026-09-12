@@ -112,7 +112,15 @@ function BoundingBox({ element }: { element: DetectedElement }) {
   );
 }
 
-function MockPage({ page, running }: { page: PageMock | null; running: boolean }) {
+function MockPage({
+  page,
+  running,
+  elements,
+}: {
+  page: PageMock | null;
+  running: boolean;
+  elements: DetectedElement[];
+}) {
   if (!page) {
     return (
       <div className="flex size-full flex-col items-center justify-center gap-3 text-center">
@@ -125,20 +133,39 @@ function MockPage({ page, running }: { page: PageMock | null; running: boolean }
   }
 
   return (
-    <div className="size-full bg-background/70 p-0">
-      <div className="flex h-[8%] items-center gap-2 border-b border-border px-4">
+    <div className="relative size-full bg-background/70">
+      <div className="absolute inset-x-0 top-0 flex h-8 items-center gap-2 border-b border-border px-4">
         <span className="size-2 rounded-full bg-destructive/70" />
         <span className="size-2 rounded-full bg-chart-3/70" />
         <span className="size-2 rounded-full bg-primary/70" />
         <span className="ml-3 truncate font-mono text-[11px] text-muted-foreground">{page.host}</span>
       </div>
-      <div className="flex h-[92%] flex-col items-center justify-center gap-3 px-10">
-        <div className="h-3 w-40 rounded bg-muted" />
-        <div className="h-3 w-64 rounded bg-muted/70" />
-        <div className="mt-4 h-12 w-[55%] rounded-md border border-border bg-secondary/60" />
-        <div className="h-12 w-[55%] rounded-md border border-border bg-secondary/60" />
-        <div className="mt-2 h-11 w-[55%] rounded-md bg-primary/25" />
-      </div>
+
+      {elements
+        .filter((element) => element.label !== "nav")
+        .map((element) => {
+          const [x, y, w, h] = element.bbox;
+          const isButton = element.label === "button" || element.label === "badge";
+          return (
+            <div
+              key={`mock-${element.id}`}
+              className={cn(
+                "absolute flex items-center overflow-hidden rounded-md border px-3",
+                isButton
+                  ? "justify-center border-primary/30 bg-primary/20 text-xs font-medium"
+                  : "border-border bg-secondary/60 text-xs text-muted-foreground",
+              )}
+              style={{
+                left: `${(x / VIEW_W) * 100}%`,
+                top: `${(y / VIEW_H) * 100}%`,
+                width: `${(w / VIEW_W) * 100}%`,
+                height: `${(h / VIEW_H) * 100}%`,
+              }}
+            >
+              <span className="truncate">{element.text ?? ""}</span>
+            </div>
+          );
+        })}
     </div>
   );
 }
