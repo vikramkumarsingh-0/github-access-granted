@@ -32,7 +32,9 @@ export const Route = createFileRoute("/api/agent-stream")({
           return Response.json({ error: "That target address is not a valid URL" }, { status: 400 });
         }
 
-        const agentApiUrl = process.env["AGENT_API_URL"];
+        // Admin can force the built-in demo even when a backend is connected.
+        const forceSandbox = params.get("sandbox") === "1";
+        const agentApiUrl = forceSandbox ? undefined : process.env["AGENT_API_URL"];
         const agentToken = process.env["AGENT_API_TOKEN"];
 
         if (agentApiUrl) {
