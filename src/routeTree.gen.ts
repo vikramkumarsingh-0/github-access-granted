@@ -10,13 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AgentCodeRouteImport } from './routes/agent-code'
 import { Route as MimicRouteImport } from './routes/mimic'
+import { Route as ApiAgentStatusRouteImport } from './routes/api/agent-status'
 import { Route as ApiAgentStreamRouteImport } from './routes/api/agent-stream'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentCodeRoute = AgentCodeRouteImport.update({
@@ -29,6 +36,11 @@ const MimicRoute = MimicRouteImport.update({
   path: '/mimic',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAgentStatusRoute = ApiAgentStatusRouteImport.update({
+  id: '/api/agent-status',
+  path: '/api/agent-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAgentStreamRoute = ApiAgentStreamRouteImport.update({
   id: '/api/agent-stream',
   path: '/api/agent-stream',
@@ -37,35 +49,62 @@ const ApiAgentStreamRoute = ApiAgentStreamRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/agent-code': typeof AgentCodeRoute
   '/mimic': typeof MimicRoute
+  '/api/agent-status': typeof ApiAgentStatusRoute
   '/api/agent-stream': typeof ApiAgentStreamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/agent-code': typeof AgentCodeRoute
   '/mimic': typeof MimicRoute
+  '/api/agent-status': typeof ApiAgentStatusRoute
   '/api/agent-stream': typeof ApiAgentStreamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/agent-code': typeof AgentCodeRoute
   '/mimic': typeof MimicRoute
+  '/api/agent-status': typeof ApiAgentStatusRoute
   '/api/agent-stream': typeof ApiAgentStreamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/agent-code' | '/mimic' | '/api/agent-stream'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/agent-code'
+    | '/mimic'
+    | '/api/agent-status'
+    | '/api/agent-stream'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/agent-code' | '/mimic' | '/api/agent-stream'
-  id: '__root__' | '/' | '/agent-code' | '/mimic' | '/api/agent-stream'
+  to:
+    | '/'
+    | '/admin'
+    | '/agent-code'
+    | '/mimic'
+    | '/api/agent-status'
+    | '/api/agent-stream'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/agent-code'
+    | '/mimic'
+    | '/api/agent-status'
+    | '/api/agent-stream'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   AgentCodeRoute: typeof AgentCodeRoute
   MimicRoute: typeof MimicRoute
+  ApiAgentStatusRoute: typeof ApiAgentStatusRoute
   ApiAgentStreamRoute: typeof ApiAgentStreamRoute
 }
 
@@ -76,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agent-code': {
@@ -92,6 +138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MimicRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agent-status': {
+      id: '/api/agent-status'
+      path: '/api/agent-status'
+      fullPath: '/api/agent-status'
+      preLoaderRoute: typeof ApiAgentStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/agent-stream': {
       id: '/api/agent-stream'
       path: '/api/agent-stream'
@@ -104,8 +157,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   AgentCodeRoute: AgentCodeRoute,
   MimicRoute: MimicRoute,
+  ApiAgentStatusRoute: ApiAgentStatusRoute,
   ApiAgentStreamRoute: ApiAgentStreamRoute,
 }
 export const routeTree = rootRouteImport
