@@ -81,6 +81,8 @@ export const Route = createFileRoute("/api/agent-stream")({
                     if (!line.startsWith("data: ")) return line;
                     try {
                       const parsed = JSON.parse(line.slice(6));
+                      // The stream terminator carries no step data; keep it out of the feed.
+                      if (!parsed || typeof parsed.phase !== "string") return "";
                       parsed.source = "live";
                       return `data: ${JSON.stringify(parsed)}`;
                     } catch {
