@@ -215,12 +215,16 @@ export const runAutomationNow = createServerFn({ method: "POST" })
       summary: result.summary,
       duration_ms: result.durationMs,
       trigger: "manual",
-      events: result.events,
+      events: result.events as never,
     });
     await context.supabase
       .from("automations")
       .update({ last_run_at: new Date().toISOString() })
       .eq("id", automation.id);
 
-    return result;
+    return {
+      outcome: result.outcome,
+      summary: result.summary,
+      durationMs: result.durationMs,
+    };
   });
