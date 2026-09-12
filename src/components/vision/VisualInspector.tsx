@@ -41,7 +41,7 @@ export function VisualInspector({ event, showBoxes, running }: Props) {
             className="absolute inset-0 size-full object-cover"
           />
         ) : (
-          <MockPage page={page} running={running} />
+          <MockPage page={page} running={running} elements={elements} />
         )}
 
         {showBoxes && (
