@@ -205,8 +205,18 @@ export const runAutomationNow = createServerFn({ method: "POST" })
       .single();
     if (error || !automation) throw new Error(error?.message ?? "Automation not found");
 
+    let bot: { username: string; secret_ciphertext: string } | null = null;
+    if (automation.bot_account_id) {
+      const { data: botRow } = await context.supabase
+        .from("bot_accounts")
+        .select("username,secret_ciphertext")
+        .eq("id", automation.bot_account_id)
+        .single();
+      bot = botRow ?? null;
+    }
+
     const { executeAutomation } = await import("@/lib/automation-runner.server");
-    const result = await executeAutomation(automation as never);
+    const result = await executeAutomation(automation as never, bot);
 
     await context.supabase.from("automation_runs").insert({
       user_id: context.userId,
