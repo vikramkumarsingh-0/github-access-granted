@@ -14,7 +14,154 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      automation_runs: {
+        Row: {
+          automation_id: string | null
+          created_at: string
+          duration_ms: number
+          events: Json
+          id: string
+          outcome: string
+          summary: string
+          trigger: string
+          user_id: string
+        }
+        Insert: {
+          automation_id?: string | null
+          created_at?: string
+          duration_ms?: number
+          events?: Json
+          id?: string
+          outcome?: string
+          summary?: string
+          trigger?: string
+          user_id: string
+        }
+        Update: {
+          automation_id?: string | null
+          created_at?: string
+          duration_ms?: number
+          events?: Json
+          id?: string
+          outcome?: string
+          summary?: string
+          trigger?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_runs_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "automations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automations: {
+        Row: {
+          bot_account_id: string | null
+          browser: string
+          cadence: string
+          created_at: string
+          enabled: boolean
+          id: string
+          last_run_at: string | null
+          max_steps: number
+          name: string
+          next_run_at: string | null
+          run_hour_utc: number
+          run_weekday: number
+          site_url: string
+          steps: Json
+          task: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bot_account_id?: string | null
+          browser?: string
+          cadence?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_run_at?: string | null
+          max_steps?: number
+          name: string
+          next_run_at?: string | null
+          run_hour_utc?: number
+          run_weekday?: number
+          site_url: string
+          steps?: Json
+          task: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bot_account_id?: string | null
+          browser?: string
+          cadence?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_run_at?: string | null
+          max_steps?: number
+          name?: string
+          next_run_at?: string | null
+          run_hour_utc?: number
+          run_weekday?: number
+          site_url?: string
+          steps?: Json
+          task?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automations_bot_account_id_fkey"
+            columns: ["bot_account_id"]
+            isOneToOne: false
+            referencedRelation: "bot_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bot_accounts: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          notes: string
+          secret_ciphertext: string
+          site_url: string
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          notes?: string
+          secret_ciphertext?: string
+          site_url?: string
+          updated_at?: string
+          user_id: string
+          username?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          notes?: string
+          secret_ciphertext?: string
+          site_url?: string
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
