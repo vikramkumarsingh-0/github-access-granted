@@ -44,7 +44,7 @@ function pageKind(subGoal: string, index: number): PageMock["kind"] {
   return index === 0 ? "search" : "results";
 }
 
-const ELEMENT_BANK: Record<PageMock["kind"], DetectedElement[]> = {
+export const ELEMENT_BANK: Record<PageMock["kind"], DetectedElement[]> = {
   login: [
     { id: "el-01", label: "input", selector: "input#email", confidence: 0.97, bbox: [430, 268, 420, 46], text: "Email address" },
     { id: "el-02", label: "input", selector: "input#password", confidence: 0.96, bbox: [430, 336, 420, 46], text: "Password" },
