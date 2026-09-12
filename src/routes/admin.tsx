@@ -37,7 +37,7 @@ export const Route = createFileRoute("/admin")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: AdminPanel;
+  component: AdminPanel,
 });
 
 interface AgentStatus {
