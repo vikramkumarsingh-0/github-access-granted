@@ -239,6 +239,49 @@ function AdminPanel() {
         </section>
 
         <div className="flex flex-col gap-4">
+          <section className="panel space-y-3 p-4">
+            <h2 className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
+              Flow builder
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Drag blocks into the flow, edit the wording, then save it to the library — no code.
+            </p>
+            <Input
+              placeholder="Flow name"
+              value={builderName}
+              onChange={(event) => setBuilderName(event.target.value)}
+            />
+            <Input
+              placeholder="Starting web address"
+              value={builderUrl}
+              onChange={(event) => setBuilderUrl(event.target.value)}
+            />
+            <FlowBuilder steps={builderSteps} onChange={setBuilderSteps} />
+            <Button
+              disabled={!builderName || builderSteps.length === 0}
+              onClick={() => {
+                setCustomFlows([
+                  ...customFlows,
+                  {
+                    id: `built-${Date.now()}`,
+                    name: builderName,
+                    description: `Designed in the flow builder · ${builderSteps.length} steps`,
+                    category: "navigation",
+                    defaultUrl: builderUrl || "https://example.com",
+                    fields: [],
+                    steps: builderSteps,
+                    maxSteps: Math.max(6, builderSteps.length + 4),
+                  },
+                ]);
+                setBuilderName("");
+                setBuilderUrl("");
+                setBuilderSteps([]);
+              }}
+            >
+              Save to flow library
+            </Button>
+          </section>
+
           <section className="panel p-4">
             <div className="flex items-center justify-between">
               <h2 className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
