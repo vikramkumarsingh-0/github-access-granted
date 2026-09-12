@@ -106,6 +106,9 @@ function AdminPanel() {
           <Link to="/" className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-secondary">
             Command center
           </Link>
+          <Link to="/automations" className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-secondary">
+            Scheduled runs
+          </Link>
           <Link to="/mimic" className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-secondary">
             Mimic sandbox
           </Link>

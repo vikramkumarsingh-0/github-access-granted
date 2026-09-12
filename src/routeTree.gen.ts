@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AgentCodeRouteImport } from './routes/agent-code'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AutomationsRouteImport } from './routes/automations'
 import { Route as MimicRouteImport } from './routes/mimic'
 import { Route as ApiAgentStatusRouteImport } from './routes/api/agent-status'
 import { Route as ApiAgentStreamRouteImport } from './routes/api/agent-stream'
@@ -36,6 +37,11 @@ const AgentCodeRoute = AgentCodeRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AutomationsRoute = AutomationsRouteImport.update({
+  id: '/automations',
+  path: '/automations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MimicRoute = MimicRouteImport.update({
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/agent-code': typeof AgentCodeRoute
   '/auth': typeof AuthRoute
+  '/automations': typeof AutomationsRoute
   '/mimic': typeof MimicRoute
   '/api/agent-status': typeof ApiAgentStatusRoute
   '/api/agent-stream': typeof ApiAgentStreamRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/agent-code': typeof AgentCodeRoute
   '/auth': typeof AuthRoute
+  '/automations': typeof AutomationsRoute
   '/mimic': typeof MimicRoute
   '/api/agent-status': typeof ApiAgentStatusRoute
   '/api/agent-stream': typeof ApiAgentStreamRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/agent-code': typeof AgentCodeRoute
   '/auth': typeof AuthRoute
+  '/automations': typeof AutomationsRoute
   '/mimic': typeof MimicRoute
   '/api/agent-status': typeof ApiAgentStatusRoute
   '/api/agent-stream': typeof ApiAgentStreamRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/agent-code'
     | '/auth'
+    | '/automations'
     | '/mimic'
     | '/api/agent-status'
     | '/api/agent-stream'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/agent-code'
     | '/auth'
+    | '/automations'
     | '/mimic'
     | '/api/agent-status'
     | '/api/agent-stream'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/agent-code'
     | '/auth'
+    | '/automations'
     | '/mimic'
     | '/api/agent-status'
     | '/api/agent-stream'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AgentCodeRoute: typeof AgentCodeRoute
   AuthRoute: typeof AuthRoute
+  AutomationsRoute: typeof AutomationsRoute
   MimicRoute: typeof MimicRoute
   ApiAgentStatusRoute: typeof ApiAgentStatusRoute
   ApiAgentStreamRoute: typeof ApiAgentStreamRoute
@@ -163,6 +176,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/automations': {
+      id: '/automations'
+      path: '/automations'
+      fullPath: '/automations'
+      preLoaderRoute: typeof AutomationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mimic': {
@@ -201,6 +221,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AgentCodeRoute: AgentCodeRoute,
   AuthRoute: AuthRoute,
+  AutomationsRoute: AutomationsRoute,
   MimicRoute: MimicRoute,
   ApiAgentStatusRoute: ApiAgentStatusRoute,
   ApiAgentStreamRoute: ApiAgentStreamRoute,
