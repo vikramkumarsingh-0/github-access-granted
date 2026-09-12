@@ -10,33 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiAgentStreamRouteImport } from './routes/api/agent-stream'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAgentStreamRoute = ApiAgentStreamRouteImport.update({
+  id: '/api/agent-stream',
+  path: '/api/agent-stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/agent-stream': typeof ApiAgentStreamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/agent-stream': typeof ApiAgentStreamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/agent-stream': typeof ApiAgentStreamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/api/agent-stream'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/api/agent-stream'
+  id: '__root__' | '/' | '/api/agent-stream'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiAgentStreamRoute: typeof ApiAgentStreamRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +58,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agent-stream': {
+      id: '/api/agent-stream'
+      path: '/api/agent-stream'
+      fullPath: '/api/agent-stream'
+      preLoaderRoute: typeof ApiAgentStreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiAgentStreamRoute: ApiAgentStreamRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
