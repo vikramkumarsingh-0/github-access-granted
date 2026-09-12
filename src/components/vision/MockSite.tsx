@@ -37,7 +37,7 @@ export function MockSite({
       kind,
       label: element.text ?? element.selector,
       selector: element.selector,
-      value,
+      ...(value === undefined ? {} : { value }),
       pageKind: page,
       bbox: element.bbox,
     });
