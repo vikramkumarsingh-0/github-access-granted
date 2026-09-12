@@ -86,7 +86,7 @@ export const Route = createFileRoute("/api/agent-stream")({
                     }
                   })
                   .join("\n");
-                controller.enqueue(encoder.encode(out));
+                controller.enqueue(encoder.encode(out + "\n"));
               },
             }),
           );
