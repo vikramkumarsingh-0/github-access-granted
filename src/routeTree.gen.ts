@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AgentCodeRouteImport } from './routes/agent-code'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as MimicRouteImport } from './routes/mimic'
 import { Route as ApiAgentStatusRouteImport } from './routes/api/agent-status'
 import { Route as ApiAgentStreamRouteImport } from './routes/api/agent-stream'
+import { Route as ApiPublicCronRunAutomationsRouteImport } from './routes/api/public/cron/run-automations'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,6 +31,11 @@ const AdminRoute = AdminRouteImport.update({
 const AgentCodeRoute = AgentCodeRouteImport.update({
   id: '/agent-code',
   path: '/agent-code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MimicRoute = MimicRouteImport.update({
@@ -46,31 +53,43 @@ const ApiAgentStreamRoute = ApiAgentStreamRouteImport.update({
   path: '/api/agent-stream',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronRunAutomationsRoute =
+  ApiPublicCronRunAutomationsRouteImport.update({
+    id: '/api/public/cron/run-automations',
+    path: '/api/public/cron/run-automations',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/agent-code': typeof AgentCodeRoute
+  '/auth': typeof AuthRoute
   '/mimic': typeof MimicRoute
   '/api/agent-status': typeof ApiAgentStatusRoute
   '/api/agent-stream': typeof ApiAgentStreamRoute
+  '/api/public/cron/run-automations': typeof ApiPublicCronRunAutomationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/agent-code': typeof AgentCodeRoute
+  '/auth': typeof AuthRoute
   '/mimic': typeof MimicRoute
   '/api/agent-status': typeof ApiAgentStatusRoute
   '/api/agent-stream': typeof ApiAgentStreamRoute
+  '/api/public/cron/run-automations': typeof ApiPublicCronRunAutomationsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/agent-code': typeof AgentCodeRoute
+  '/auth': typeof AuthRoute
   '/mimic': typeof MimicRoute
   '/api/agent-status': typeof ApiAgentStatusRoute
   '/api/agent-stream': typeof ApiAgentStreamRoute
+  '/api/public/cron/run-automations': typeof ApiPublicCronRunAutomationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -78,34 +97,42 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/agent-code'
+    | '/auth'
     | '/mimic'
     | '/api/agent-status'
     | '/api/agent-stream'
+    | '/api/public/cron/run-automations'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
     | '/agent-code'
+    | '/auth'
     | '/mimic'
     | '/api/agent-status'
     | '/api/agent-stream'
+    | '/api/public/cron/run-automations'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/agent-code'
+    | '/auth'
     | '/mimic'
     | '/api/agent-status'
     | '/api/agent-stream'
+    | '/api/public/cron/run-automations'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AgentCodeRoute: typeof AgentCodeRoute
+  AuthRoute: typeof AuthRoute
   MimicRoute: typeof MimicRoute
   ApiAgentStatusRoute: typeof ApiAgentStatusRoute
   ApiAgentStreamRoute: typeof ApiAgentStreamRoute
+  ApiPublicCronRunAutomationsRoute: typeof ApiPublicCronRunAutomationsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -131,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mimic': {
       id: '/mimic'
       path: '/mimic'
@@ -152,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAgentStreamRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/run-automations': {
+      id: '/api/public/cron/run-automations'
+      path: '/api/public/cron/run-automations'
+      fullPath: '/api/public/cron/run-automations'
+      preLoaderRoute: typeof ApiPublicCronRunAutomationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -159,9 +200,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AgentCodeRoute: AgentCodeRoute,
+  AuthRoute: AuthRoute,
   MimicRoute: MimicRoute,
   ApiAgentStatusRoute: ApiAgentStatusRoute,
   ApiAgentStreamRoute: ApiAgentStreamRoute,
+  ApiPublicCronRunAutomationsRoute: ApiPublicCronRunAutomationsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
